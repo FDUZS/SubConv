@@ -9,7 +9,7 @@ Subscription converter for Clash/mihomo proxy configs. Takes proxy subscription 
 Two separate components that ship together:
 
 - **Backend** (`api.py` + `modules/`): Python FastAPI app. Single entrypoint `api.py`, all logic in `modules/`.
-  - `modules/config.py` — Loads `config.yaml` at startup via pydantic-settings-yaml. Exits on missing/invalid config.
+  - `modules/config.py` — Loads `config.yaml` at startup via pydantic-settings built-in YamlConfigSettingsSource. Exits on missing/invalid config.
   - `modules/config_template.py` — Two hardcoded templates (`template_default`, `template_zju`) used by `--generate-config` CLI flag.
   - `modules/parse.py` — Parses subscription content (Clash YAML or V2Ray base64) into proxy lists.
   - `modules/pack.py` — Assembles the final Clash config: proxy-groups, proxy-providers, rule-providers, rules.
@@ -53,7 +53,7 @@ cd mainpage && yarn && yarn dev
 
 ## Config File (`config.yaml`)
 
-- Loaded at startup by `modules/config.py` using `pydantic-settings-yaml`.
+- Loaded at startup by `modules/config.py` using pydantic-settings built-in `YamlConfigSettingsSource`.
 - Three top-level keys: `HEAD` (Clash config header with DNS/etc.), `TEST_URL`, `RULESET` (list of `[group_name, url]` pairs), `CUSTOM_PROXY_GROUP` (list of proxy group definitions).
 - `RULESET` entries starting with `[]` are inline rules (e.g., `[]GEOIP,CN`, `[]FINAL`).
 - `CUSTOM_PROXY_GROUP` items have: `name`, `type` (select/url-test/fallback/load-balance), `rule` (bool — whether group appears in rule-based selection), `manual` (bool — uses standby subs), `prior` (DIRECT/PROXY/REJECT), `regex` (filter proxies by name pattern).
