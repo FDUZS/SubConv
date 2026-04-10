@@ -3,8 +3,11 @@ LABEL name="subconv"
 
 WORKDIR /app
 
-RUN apk add --update-cache ca-certificates tzdata patchelf clang ccache && \
+RUN apk add --update-cache ca-certificates tzdata patchelf clang ccache bash curl unzip && \
     apk upgrade --no-cache
+
+ENV BUN_INSTALL=/root/.bun
+ENV PATH=${BUN_INSTALL}/bin:${PATH}
 
 RUN pip3 install uv
 
@@ -24,6 +27,10 @@ RUN --mount=type=cache,target=/root/.cache/Nuitka \
     uv run python -m nuitka --clang --onefile --standalone api.py && \
     chmod +x api.bin
 
+RUN curl -fsSL https://bun.sh/install | bash -s -- bun-v1.3.11
+
+RUN cd mainpage && bun install --frozen-lockfile && bun run build
+
 
 FROM alpine:3.22
 
@@ -34,7 +41,7 @@ RUN apk upgrade --no-cache
 COPY --from=builder /app/api.bin /app/api.bin
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY static /app/static
+COPY --from=builder /app/mainpage/dist /app/mainpage/dist
 COPY config.yaml /app/config.yaml
 
 EXPOSE 8080

@@ -8,8 +8,8 @@ on:
       - '**'
     paths:
       - '.github/workflows/build.yml'
-      - 'modules/**'
-      - 'static/**'
+      - 'subconv/**'
+      - 'mainpage/**'
       - 'api.py'
       - 'pyproject.toml'
       - 'uv.lock'
@@ -45,6 +45,11 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+
       - name: Install Dependencies
         run: |
           uv sync --locked --group build
@@ -53,11 +58,18 @@ jobs:
         run: |
           uv run python -m nuitka --onefile api.py
 
+      - name: Build Frontend
+        working-directory: mainpage
+        run: |
+          bun ci
+          bun run build
+
       - name: Copy Files
         run: |
           mkdir output
+          mkdir output/mainpage
           cp api${{ matrix.os == 'windows-latest' && '.exe' || '.bin' }} output/api${{ matrix.os == 'windows-latest' && '.exe' || '' }}
-          cp -r static output/static
+          cp -r mainpage/dist output/mainpage/dist
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
