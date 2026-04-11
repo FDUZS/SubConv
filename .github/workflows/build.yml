@@ -8,6 +8,8 @@ on:
       - '.github/workflows/build.yml'
       - 'subconv/**'
       - 'mainpage/**'
+      - 'template/**'
+      - 'config.yaml.example'
       - 'api.py'
       - 'pyproject.toml'
       - 'uv.lock'

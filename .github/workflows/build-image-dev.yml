@@ -10,6 +10,8 @@ on:
       - 'Dockerfile'
       - 'subconv/**'
       - 'mainpage/**'
+      - 'template/**'
+      - 'config.yaml.example'
       - 'api.py'
       - 'pyproject.toml'
       - 'uv.lock'
